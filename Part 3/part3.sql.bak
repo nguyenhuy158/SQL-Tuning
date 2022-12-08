@@ -1,0 +1,31 @@
+--yêu cầu 
+--tên của sản phẩm, 
+--nhà sản xuất,
+--id đơn hàng
+--tên của nhân viên,
+
+
+--các đơn đặc hàng nằm trong ngày bao nhiêu tới bao nhiêu 
+--và giảm giá > 0.15
+--ProductName, s.CompanyName, o.OrderID, LastName + ' ' + FirstName
+
+--ProductName, s.CompanyName, o.OrderID, LastName + ' ' + FirstName
+select * from
+Orders o
+full join 
+	[Order Details] od on o.OrderID = od.OrderID
+full join
+	Products p on od.ProductID = p.ProductID
+full join
+	Employees e on o.EmployeeID = e.EmployeeID
+full join 
+	Customers c on o.CustomerID = c.CustomerID
+full join
+	Suppliers s	on s.SupplierID = p.SupplierID
+where
+	OrderDate >= '1996-01-01' and OrderDate <= '1996-12-31'
+	and Discount >= 0.15
+	and  UPPER(s.CompanyName) like 'H%' 
+	
+	
+	UNION ALL
