@@ -1,5 +1,7 @@
-class BTreeNode:
+import random
 
+
+class BTreeNode:
     def __init__(self, isLeaf=True):
         self.isLeaf = isLeaf
         self.key = list()
@@ -13,8 +15,27 @@ class BTree:
     def __init__(self, m):
         self.m = m
 
+    def search(self, key):
+        return self._search(self.root, key)
+
+    def _search(self, currentNode: BTreeNode, key):
+
+        for keyIndex in range(len(currentNode.key)):
+            tempKey = currentNode.key[keyIndex]
+            if tempKey == key:
+                return True
+            elif key < tempKey and not currentNode.isLeaf:
+                child = currentNode.child[keyIndex]
+                return self._search(child, key)
+
+        if currentNode.isLeaf:
+            return False
+
+        child = currentNode.child[len(currentNode.key)]
+        return self._search(child, key)
+
     def insert(self, key):
-        if (self.root == None):
+        if self.root == None:
             self.root = BTreeNode()
             self.root.key.append(key)
             return
@@ -24,7 +45,7 @@ class BTree:
             return
 
         # not leaf
-        while (current.isLeaf == False):
+        while current.isLeaf == False:
             # v1.0
             # isFlag = False
             # for i in range(len(current.key)):
@@ -50,8 +71,8 @@ class BTree:
 
         self.insert_key_to_node(currentNode=current, key=key)
 
-    def insert_key_to_node(self, currentNode, key):
-        if (currentNode.isLeaf):
+    def insert_key_to_node(self, currentNode: BTreeNode, key):
+        if currentNode.isLeaf:
             currentNode.key.append(key)
             currentNode.key.sort()
 
@@ -59,8 +80,8 @@ class BTree:
                 return True
 
             # put up
-            keyLeft = currentNode.key[: self.m//2]
-            keyRight = currentNode.key[self.m//2+1:]
+            keyLeft = currentNode.key[: self.m // 2]
+            keyRight = currentNode.key[self.m // 2 + 1 :]
             nodeLeft = BTreeNode()
             nodeLeft.key.extend(keyLeft)
             nodeRight = BTreeNode()
@@ -68,44 +89,48 @@ class BTree:
 
             if self.get_parent_node(self.root, None, currentNode) == None:
                 newRootNode = BTreeNode(isLeaf=False)
-                newRootNode.key.append(currentNode.key[self.m//2])
+                newRootNode.key.append(currentNode.key[self.m // 2])
                 newRootNode.child.append(nodeLeft)
                 newRootNode.child.append(nodeRight)
 
                 self.root = newRootNode
                 return True
             else:
-                tempRootNode = self.get_parent_node(
-                    self.root, None, currentNode)
-                tempRootNode.key.append(currentNode.key[self.m//2])
+                tempRootNode = self.get_parent_node(self.root, None, currentNode)
+                tempRootNode.key.append(currentNode.key[self.m // 2])
+                tempRootNode.key.sort()
+                index = tempRootNode.child.index(currentNode)
                 tempRootNode.child.remove(currentNode)
-                tempRootNode.child.append(nodeLeft)
-                tempRootNode.child.append(nodeRight)
+                tempRootNode.child.insert(index, nodeRight)
+                tempRootNode.child.insert(index, nodeLeft)
+                # tempRootNode.child.append(nodeLeft)
+                # tempRootNode.child.append(nodeRight)
 
                 isFlag = False
                 newRootNode = None
                 while len(tempRootNode.key) == self.m:
                     nodeLeft = BTreeNode(isLeaf=False)
                     nodeRight = BTreeNode(isLeaf=False)
-                    keyLeft = tempRootNode.key[: self.m//2]
-                    keyRight = tempRootNode.key[self.m//2+1:]
+                    keyLeft = tempRootNode.key[: self.m // 2]
+                    keyRight = tempRootNode.key[self.m // 2 + 1 :]
                     nodeLeft.key.extend(keyLeft)
                     nodeRight.key.extend(keyRight)
-                    childLeft = tempRootNode.child[: self.m//2+1]
-                    childRight = tempRootNode.child[self.m//2+1:]
+                    childLeft = tempRootNode.child[: self.m // 2 + 1]
+                    childRight = tempRootNode.child[self.m // 2 + 1 :]
                     nodeLeft.child.extend(childLeft)
                     nodeRight.child.extend(childRight)
 
                     if self.get_parent_node(self.root, None, tempRootNode) == None:
                         newRootNode = BTreeNode(isLeaf=False)
-                        newRootNode.key.append(tempRootNode.key[self.m//2])
+                        newRootNode.key.append(tempRootNode.key[self.m // 2])
                         newRootNode.child.append(nodeLeft)
                         newRootNode.child.append(nodeRight)
                         self.root = newRootNode
                     else:
                         newRootNode = self.get_parent_node(
-                            self.root, None, tempRootNode)
-                        newRootNode.key.append(tempRootNode.key[self.m//2])
+                            self.root, None, tempRootNode
+                        )
+                        newRootNode.key.append(tempRootNode.key[self.m // 2])
                         newRootNode.key.sort()
                         newRootNode.child.remove(tempRootNode)
                         newRootNode.child.append(nodeLeft)
@@ -118,67 +143,47 @@ class BTree:
 
         return False
 
-    def get_parent_node(self, currentNode: BTreeNode, parentNode: BTreeNode, childNode: BTreeNode):
+    def get_parent_node(
+        self, currentNode: BTreeNode, parentNode: BTreeNode, childNode: BTreeNode
+    ):
         if currentNode == childNode:
             return parentNode
         node = None
         for child in currentNode.child:
             node = self.get_parent_node(child, currentNode, childNode)
+            if node != None:
+                break
 
         return node
-
-        # tempNode = None
-        # for e in currentNode.child:
-        #     if e == childNode:
-        #         tempNode = currentNode
-        #         break
-        #     else:
-        #         self.get_parent_node(e, childNode=childNode)
-        # return tempNode
 
     def printTree(self):
         self.print(node=self.root)
 
-    def print(self, node):
-        l = len(node.child)//2
+    def print(self, node: BTreeNode):
+        l = len(node.child) // 2
         if len(node.child) % 2 == 1:
             l += 1
         for i in range(l):
             self.print(node.child[i])
         for key in node.key:
-            print(f'{key}')
+            print(f"{key}")
         for i in range(l, len(node.child)):
             self.print(node.child[i])
 
 
 def main():
     btree = BTree(3)
-    btree.insert(1)
-    btree.insert(2)
-    btree.insert(3)
-    btree.insert(4)
-    btree.insert(5)
-    btree.insert(6)
-    btree.insert(0)
-    btree.insert(7)
-    btree.insert(8)
-    btree.insert(9)
-    btree.insert(10)
-    btree.insert(11)
-    btree.insert(12)
-    btree.insert(13)
-    btree.insert(14)
-    btree.insert(15)
-    btree.insert(15)
-    btree.insert(16)
-    btree.insert(17)
-    btree.insert(18)
-    btree.insert(19)
-    btree.insert(20)
-    btree.insert(21)
+    keys = [18, 57, 45, 77, 55, 68, 70, 20, 48, 86, 21, 43, 62, 87, 69]
+    for key in keys:
+        btree.insert(key=key)
     btree.printTree()
+
+    random.seed(1508)
+    for key in keys:
+        num = key + random.randint(0, 1)
+        print(f"{num} is {True if btree.search(num) else False} ")
     pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
