@@ -1,4 +1,7 @@
 import random
+import igraph
+from tkinter import *
+from tkinter import ttk
 
 
 class BTreeNode:
@@ -170,6 +173,46 @@ class BTree:
         for i in range(l, len(node.child)):
             self.print(node.child[i])
 
+    def buildTree(
+        self,
+        currentNode: BTreeNode,
+        treeView: ttk.Treeview,
+        parent="",
+        iid="item",
+        index_iid=1,
+    ):
+        text = ", ".join(str(key) for key in currentNode.key)
+        print(text, parent, index_iid)
+
+        treeView.insert(
+            parent="", index="end", iid=str(text + str(index_iid)), text=text
+        )
+        if parent != "":
+            treeView.move(item=str(text + str(index_iid)), parent=parent, index="end")
+
+        if not currentNode.isLeaf:
+            index = 0
+            for child in currentNode.child:
+                index += 1
+                self.buildTree(
+                    child,
+                    treeView,
+                    parent=str(text + str(index_iid)),
+                    index_iid=index_iid + index,
+                )
+
+        else:
+            pass
+
+    def mainGui(self):
+        app = Tk()
+        app.title("Application of B Tree")
+        ttk.Label(app, text="B Tree").pack()
+        treeView = ttk.Treeview(app)
+        treeView.pack()
+        self.buildTree(self.root, treeView)
+        app.mainloop()
+
 
 def main():
     btree = BTree(3)
@@ -182,6 +225,8 @@ def main():
     for key in keys:
         num = key + random.randint(0, 1)
         print(f"{num} is {True if btree.search(num) else False} ")
+
+    btree.mainGui()
     pass
 
 
