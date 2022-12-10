@@ -8,6 +8,9 @@
 --ProductName, s.CompanyName, o.OrderID, LastName + ' ' + FirstName
 --ProductName, s.CompanyName, o.OrderID, LastName + ' ' + FirstName
 --ProductName, s.CompanyName, o.OrderID, LastName + ' ' + FirstName
+-- 
+-- 
+-- Query not tuning
 SELECT *
 FROM Orders o
 	FULL JOIN [Order Details] od ON o.OrderID = od.OrderID
@@ -23,7 +26,10 @@ WHERE DATEDIFF(yy, OrderDate, getdate()) >= 26
 		OR UPPER(s.CompanyName) LIKE '%Y%'
 	);
 -- 
--- UNION ALL
+-- 
+-- 
+-- Query tuning
+-- 
 SELECT p.ProductName,
 	s.CompanyName,
 	o.OrderID,

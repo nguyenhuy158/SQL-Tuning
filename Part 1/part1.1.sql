@@ -1,5 +1,8 @@
-CREATE TABLE class (class_id INT);
 -- Truong hop 1
+-- 
+-- 
+-- 
+-- query not tuning
 SELECT s.fname,
     s.lname,
     r.signup_date
@@ -9,7 +12,11 @@ FROM student s
 WHERE c.name = 'SQL TUNING'
     AND r.signup_date BETWEEN @BeginDate AND @EndDate
     AND r.cancelled = 'N';
--- final
+-- 
+-- 
+-- 
+-- 
+-- query tuning
 SELECT ss.fname,
     ss.lname,
     rr.signup_date

@@ -2,6 +2,10 @@ import random
 import igraph
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
+
+WINDOW_SIZE = "300x300"
+WINDOW_WIDTH = "100"
 
 
 class BTreeNode:
@@ -182,6 +186,7 @@ class BTree:
         index_iid=1,
     ):
         text = ", ".join(str(key) for key in currentNode.key)
+        text = "[" + text + "]"
         print(text, parent, index_iid)
 
         treeView.insert(
@@ -204,31 +209,124 @@ class BTree:
         else:
             pass
 
+
+class GUI:
+    def __init__(self) -> None:
+        self.btree = BTree(3)
+        self.app = Tk()
+        # self.app.eval("tk::PlaceWindow . center")
+        self.app.resizable(False, False)
+        self.app.geometry(WINDOW_SIZE)
+        self.frame = Frame(self.app)
+        self.frameControl = Frame(self.app)
+        self.treeView = ttk.Treeview(self.app, padding="2")
+        self.validation = self.app.register(self.only_numbers)
+        self.inputNum = ttk.Entry(
+            self.frame,
+            validate="key",
+            validatecommand=(self.validation, "%S"),
+        )
+        self.buttonAdd = ttk.Button(
+            self.frameControl,
+            text="Add",
+            command=lambda: self.clickAdd(num=self.inputNum.get()),
+        )
+        self.buttonFind = ttk.Button(
+            self.frameControl,
+            text="Find",
+            command=lambda: self.clickFind(num=self.inputNum.get()),
+        )
+        self.buttonDelete = ttk.Button(
+            self.frameControl,
+            text="Delete",
+            command=lambda: self.clickRemove(num=self.inputNum.get()),
+        )
+        self.treeView.bind("<<TreeviewOpen>>", self.handleOpenEvent)
+
     def mainGui(self):
-        app = Tk()
-        app.title("Application of B Tree")
-        ttk.Label(app, text="B Tree").pack()
-        treeView = ttk.Treeview(app)
-        treeView.pack()
-        self.buildTree(self.root, treeView)
-        app.mainloop()
+        self.app.title("Application B-Tree visualization @NguyenHuy158")
+
+        self.frame.pack()
+        self.frameControl.pack()
+        label = ttk.Label(self.frame, text="B Tree")
+        label.pack(side=TOP)
+
+        ttk.Label(self.frame, text="number: ").pack(side=LEFT)
+        self.inputNum.pack(side=RIGHT)
+        self.buttonAdd.pack(side=LEFT)
+        self.buttonFind.pack(side=LEFT)
+        self.buttonDelete.pack(side=LEFT)
+
+        self.treeView.pack()
+        # self.btree.buildTree(self.btree.root, self.treeView)
+        self.app.mainloop()
+
+    def only_numbers(self, char):
+        return char.isdigit()
+
+    def handleOpenEvent(self, event):
+        self.open_children(self.treeView.focus())
+
+    def open_children(self, parent):
+        self.treeView.item(parent, open=True)
+        for child in self.treeView.get_children(parent):
+            self.open_children(child)
+
+    def clickAdd(self, num: str):
+        if num.isdigit():
+            messagebox.showinfo(title="Information", message="Add success")
+            self.inputNum.delete(0, "end")
+            self.btree.insert(int(num))
+            self.treeView.delete(*self.treeView.get_children())
+            self.btree.buildTree(self.btree.root, self.treeView)
+            self.handleOpenEvent(None)
+        else:
+            messagebox.showerror(title="Error", message="Add fail, enter number please")
+
+    def clickFind(self, num: str):
+        if num.isdigit():
+            if self.btree.search(key=num):
+                messagebox.showinfo(
+                    title="Information", message=f"Found {num} in B Tree"
+                )
+            else:
+                messagebox.showinfo(
+                    title="Information", message=f"Not found {num} in B Tree"
+                )
+            self.inputNum.delete(0, "end")
+        else:
+            messagebox.showerror(
+                title="Error", message="Find fail, enter number please"
+            )
+
+    def clickRemove(self, num: str):
+        if num.isdigit():
+            messagebox.showinfo(title="Information", message="Coming soon")
+        else:
+            messagebox.showerror(title="Error", message="Add fail, enter number please")
+
+
+def mainV2():
+    ui = GUI()
+    ui.mainGui()
+    pass
 
 
 def main():
-    btree = BTree(3)
-    keys = [18, 57, 45, 77, 55, 68, 70, 20, 48, 86, 21, 43, 62, 87, 69]
-    for key in keys:
-        btree.insert(key=key)
-    btree.printTree()
+    # btree = BTree(3)
+    # # keys = [18, 57, 45, 77, 55, 68, 70, 20, 48, 86, 21, 43, 62, 87, 69]
+    # # for key in keys:
+    # #     btree.insert(key=key)
+    # # btree.printTree()
 
-    random.seed(1508)
-    for key in keys:
-        num = key + random.randint(0, 1)
-        print(f"{num} is {True if btree.search(num) else False} ")
+    # # random.seed(1508)
+    # # for key in keys:
+    # #     num = key + random.randint(0, 1)
+    # #     print(f"{num} is {True if btree.search(num) else False} ")
 
-    btree.mainGui()
+    # btree.mainGui()
     pass
 
 
 if __name__ == "__main__":
-    main()
+    mainV2()

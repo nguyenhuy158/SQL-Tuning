@@ -6,15 +6,8 @@ FROM dbo.sysdatabases;
 -- method 2 is Catalog Views
 SELECT *
 FROM sys.databases;
--- 
-SELECT COUNT(*)
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE table_catalog = 'database_name'
-    AND table_name = 'table_name';
 --
 sys.sysobjects trong compatibility view thành sys.objects trong catalog view sys.sysindexes trong compatibility view thành sys.indexes trong catalog view …;
--- 
--- 
 -- 
 SELECT wait_type,
     SUM(wait_time_ms / 1000) AS [wait_time_s]
@@ -28,9 +21,10 @@ WHERE wait_type NOT IN (
         'LAZYWRITER_SLEEP'
     )
 GROUP BY wait_type
-ORDER BY SUM(wait_time_ms) DESC -- 
-    -- 
-    -- 
+ORDER BY SUM(wait_time_ms) DESC;
+-- 
+-- 
+-- 
 SELECT DB_NAME(mf.database_id) AS databaseName,
     mf.physical_name,
     divfs.num_of_reads,
@@ -51,7 +45,10 @@ WITH currentLine AS (
     FROM sys.dm_io_virtual_file_stats(NULL, NULL) AS divfs
         JOIN sys.master_files AS mf ON mf.database_id = divfs.database_id
         AND mf.file_id = divfs.file_id
-)
+);
+-- 
+-- 
+-- 
 SELECT currentLine.databaseName,
     currentLine.physical_name,
     --gets the time difference in milliseconds since the baseline was taken
@@ -61,4 +58,4 @@ SELECT currentLine.databaseName,
     --other columns removed
 FROM currentLine
     INNER JOIN #baseline ON #baseLine.databaseName = currentLine.databaseName
-    AND #baseLine.physical_name = currentLine.physical_name
+    AND #baseLine.physical_name = currentLine.physical_name;

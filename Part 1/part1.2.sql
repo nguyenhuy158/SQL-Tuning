@@ -1,4 +1,8 @@
 -- Truong hop 2
+-- 
+-- 
+-- 
+-- query not tuning
 SELECT o.OrderID,
     c.LastName,
     p.ProductID,
@@ -16,9 +20,15 @@ WHERE c.LastName LIKE ISNULL(@LastName, '') || '%'
     AND c.FirstName LIKE ISNULL(@FirstName, '') || '%'
     AND o.OrderDate >= DATEADD(day, -30, CURRENT_TIMESTAMP)
     AND o.OrderStatus <> 'C';
+-- 
+-- node:
 -- isnull(variable, default) if variable is null get default
 -- dateaddd(interval, number, date) +number intervarl into date
--- final
+-- 
+-- 
+-- 
+-- 
+-- query tuning
 SELECT o.OrderID,
     c.LastName,
     p.ProductID,
