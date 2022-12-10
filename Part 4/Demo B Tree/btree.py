@@ -285,13 +285,13 @@ class GUI:
 
     def clickFind(self, num: str):
         if num.isdigit():
-            if self.btree.search(key=num):
+            if self.btree.search(key=int(num)):
                 messagebox.showinfo(
                     title="Information", message=f"Found {num} in B Tree"
                 )
             else:
-                messagebox.showinfo(
-                    title="Information", message=f"Not found {num} in B Tree"
+                messagebox.showwarning(
+                    title="Warning", message=f"Not found {num} in B Tree"
                 )
             self.inputNum.delete(0, "end")
         else:
